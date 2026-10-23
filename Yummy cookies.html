@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  body {
+    background-color: black;
+    color: red;
+    font-family: sans-serif;
+    border: 2px solid red;
+    padding: 15px;
+  }
+  hr {
+    color: red;
+    background-color: red;
+    border: 3px solid red;
+    padding: 1px;
+  }
+  button {
+    color: red;
+    background-color: black;
+    border: 3px solid red;
+    border-radius: 10px;
+    height: 60px;
+    min-width: 250px;
+    font-size: 20px;
+    padding: 5px;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #200000;
+  }
+  #status {
+    font-size: 16px;
+    margin-top: 15px;
+    font-family: monospace;
+    word-break: break-all;
+  }
+  .controls-panel {
+    border: 1px solid red;
+    padding: 15px;
+    max-width: 500px;
+    margin-bottom: 20px;
+  }
+  .input-group {
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  input[type="number"] {
+    background-color: black;
+    color: red;
+    border: 2px solid red;
+    padding: 5px;
+    font-size: 16px;
+    width: 140px;
+  }
+</style>
+<title>Cookie Flooder</title>
+</head>
+<body>
+  <center>
+    <h1>Welcome To Entropy Services // Cookie Flooder</h1>
+    <h4>Distribution of this program is allowed.</h4>
+  </center>
+
+  <br><hr><br>
+
+  <div class="controls-panel">
+    <h3>Configuration</h3>
+    <div class="input-group">
+      <label for="batchSizeInput">Cookies Added Per Interval:</label>
+      <input type="number" id="batchSizeInput" value="500" min="1">
+    </div>
+    <div class="input-group">
+      <label for="intervalInput">Cookie Add Interval:</label>
+      <input type="number" id="intervalInput" value="5" min="1">
+    </div>
+    <div class="input-group">
+      <label for="maxCapInput">Maximum Cookies Active (Max Cap prevents crashes):</label>
+      <input type="number" id="maxCapInput" value="4000" min="1">
+    </div>
+  </div>
+
+  <!-- Button to trigger the cookie loop -->
+  <button id="floodBtn" onclick="toggleFlooder()">Flood Cookies</button>
+  <div id="status">Status: Idle</div>
+
+  <br><br>
+  <hr>
+  <br><br>
+
+  <a href="https://www.youtube.com/@Redethyofcourse"><button>YouTube @Redethyofcourse</button></a>
+  <br><br>
+  <a href="https://www.youtube.com/@Purepolethyofcourse0101"><button>YouTube @EntropyServices</button></a>
+  <br><br>
+
+  <script>
+    let intervalId = null;
+    let cookieCounter = 0;
+    const activeCookieKeys = [];
+
+    function cycleCookies() {
+      // Read current values configured in the UI
+      const batchSize = Math.max(1, parseInt(document.getElementById("batchSizeInput").value) || 500);
+      const maxActiveCookies = Math.max(1, parseInt(document.getElementById("maxCapInput").value) || 400000);
+
+      // Generate a batch of cookies per cycle
+      for (let i = 0; i < batchSize; i++) {
+        cookieCounter++;
+        const newKey = "c_" + cookieCounter;
+        const newValue = Math.random().toString(36).substring(7);
+
+        // Set the cookie
+        document.cookie = `${newKey}=${newValue}; path=/; SameSite=Lax`;
+        activeCookieKeys.push(newKey);
+
+        // If tracked list exceeds max limit, evict oldest
+        if (activeCookieKeys.length > maxActiveCookies) {
+          const deletedKey = activeCookieKeys.shift();
+          document.cookie = `${deletedKey}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Lax`;
+        }
+      }
+
+      // Update UI with current tracking stats
+      document.getElementById("status").innerText =
+        `Running... Total Created: ${cookieCounter} | Active Tracked: ${activeCookieKeys.length} / ${maxActiveCookies}`;
+    }
+
+    function toggleFlooder() {
+      const btn = document.getElementById("floodBtn");
+     
+      if (!intervalId) {
+        // Read custom interval rate from the UI (minimum 1ms)
+        const intervalSpeed = Math.max(1, parseInt(document.getElementById("intervalInput").value) || 5);
+
+        intervalId = setInterval(cycleCookies, intervalSpeed);
+        btn.innerText = "Stop Flooding";
+        document.getElementById("status").innerText = "Status: Running...";
+      } else {
+        clearInterval(intervalId);
+        intervalId = null;
+        btn.innerText = "Flood Cookies";
+        document.getElementById("status").innerText = "Status: Stopped";
+      }
+    }
+  </script>
+</body>
+</html>
